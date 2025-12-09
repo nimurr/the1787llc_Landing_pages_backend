@@ -2,6 +2,8 @@ const nodemailer = require("nodemailer");
 const config = require("../config/config");
 const logger = require("../config/logger");
 
+const timeNow = () => new Date().toLocaleString();
+
 const transport = nodemailer.createTransport(config.email.smtp);
 /* istanbul ignore next */
 if (config.env !== "test") {
@@ -39,7 +41,7 @@ const sendEmailVerification = async (to, otp) => {
             ${otp}
         </div>
         <p style="color: #4b5563; margin-bottom: 1.5rem;">Collect this code to verify your account.</p>
-        <p style="color: #ff0000; font-size: 0.85rem; margin-top: 1.5rem;">This code expires in <span
+        <p style="color: #ff0000; font-size: 0.85rem; margin-top: 1.5rem;"> Email Sented at ${timeNow()}. This code expires in <span
                 id="timer">5:00</span>
             minutes.</p>
         <a href="https://shadat-hossain.netlify.app" style="color: #888; font-size: 12px; text-decoration: none;"
@@ -67,7 +69,7 @@ const sendResetPasswordEmail = async (to, otp) => {
                   style="background: linear-gradient(135deg, #35e6a5ff, #22b37dff); color: #ffffff; padding: 1rem; border-radius: 0.5rem; font-size: 2rem; font-weight: 800; letter-spacing: 0.1rem; margin-bottom: 1.5rem;">
                   ${otp}
               </div>
-              <p style="color: #d6471c; margin-bottom: 1.5rem;">Collect this code to reset your password. This code is valid
+              <p style="color: #d6471c; margin-bottom: 1.5rem;"> Email Sented at ${timeNow()}. This code is valid
                   for
                   5
                   minutes.</p>

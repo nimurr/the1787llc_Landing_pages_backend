@@ -4,7 +4,7 @@ const authRoute = require("./auth.routes");
 const userRoute = require("./user.routes");
 const docsRoute = require("./docs.routes");
 const analysisHistoryRoute = require("./analysisHistoryRoute.routes");
-
+const webhookRoute = require("./webhook.routes");
 
 const router = express.Router();
 
@@ -20,6 +20,10 @@ const defaultRoutes = [
   {
     path: "/analysis-history",
     route: analysisHistoryRoute,
+  },
+  {
+    path: "/webhook",
+    route: webhookRoute,
   }
 
 ];

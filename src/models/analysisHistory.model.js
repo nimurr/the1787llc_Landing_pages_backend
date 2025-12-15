@@ -7,7 +7,7 @@ const analysisHistorySchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
-        analysisDate: {
+        analysisData: {
             type: Array,
             required: true,
         }

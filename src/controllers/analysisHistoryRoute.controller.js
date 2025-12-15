@@ -1,4 +1,7 @@
+const httpStatus = require("http-status");
 const { analysisHistoryService } = require("../services");
+const ApiError = require("../utils/ApiError");
+const response = require("../config/response");
 
 const createHistory = async (req, res) => {
     const { _id } = req.user
@@ -36,12 +39,16 @@ const getHistoryById = async (req, res) => {
     const { id } = req.params
     try {
         const history = await analysisHistoryService.getHistoryById(id);
-        res.status(200).send({
-            message: "History Fetched",
-            status: "OK",
-            statusCode: 200,
-            data: history
-        });
+
+        res.status(httpStatus.OK).json(
+            response({
+                message: "History Fetched",
+                status: "OK",
+                statusCode: httpStatus.OK,
+                data: history,
+            })
+        );
+
     } catch (error) {
         console.log(error);
     }

@@ -1,4 +1,6 @@
+const httpStatus = require("http-status");
 const { AnalysisHistory } = require("../models");
+const ApiError = require("../utils/ApiError");
 
 
 const createHistory = async (data) => {
@@ -22,6 +24,11 @@ const getHistory = async (id) => {
 const getHistoryById = async (id) => {
     try {
         const history = await AnalysisHistory.findById(id);
+
+        if (!history) {
+            throw new ApiError(httpStatus.NOT_FOUND, "History not found");
+        }
+
         return history
     } catch (error) {
         console.log(error);

@@ -22,7 +22,7 @@ const defaultRoutes = [
     route: analysisHistoryRoute,
   },
   {
-    path: "/webhook",
+    path: "/checkout",
     route: webhookRoute,
   }
 

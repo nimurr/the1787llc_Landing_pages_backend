@@ -62,7 +62,7 @@ router.post("/", auth("user"), async (req, res) => {
 
 router.post('/webhook', (req, res) => {
     console.log(req.body);
-
+    
     res.json({ received: true });
 });
 

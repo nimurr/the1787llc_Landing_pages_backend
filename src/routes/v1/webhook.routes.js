@@ -26,7 +26,7 @@ router.post("/", auth("user"), async (req, res) => {
         });
 
         const session = await stripe.checkout.sessions.create({
-            mode: "subscription",
+            mode: "payment",
             metadata: {
                 id: transition._id.toString(),
                 userId: req.user._id.toString()
@@ -39,7 +39,7 @@ router.post("/", auth("user"), async (req, res) => {
                     price_data: {
                         currency: "usd",
                         product_data: { name: productName },
-                        unit_amount: price * 100,
+                        unit_amount: 299 * 100,
                         recurring: { interval: type },
                     },
                     quantity: 1,
@@ -59,22 +59,25 @@ router.post("/", auth("user"), async (req, res) => {
     }
 });
 
+
+
 // Stripe webhook
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const whsec = config.stripe.webhookSecret;
+    console.log(req.body, whsec)
 
     let event;
 
     try {
-        event = stripe.webhooks.constructEvent(req.rawBody, sig, whsec);
+        event = stripe.webhooks.constructEvent(req.body, sig, whsec);
         console.log('Webhook event:', event);
 
     } catch (err) {
         console.error('Error verifying webhook signature:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
-    
+
 
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;

@@ -14,6 +14,7 @@ const { authLimiter } = require("./middlewares/rateLimiter");
 const routes = require("./routes/v1");
 const { errorConverter, errorHandler } = require("./middlewares/error");
 const ApiError = require("./utils/ApiError");
+const bodyParser = require("body-parser");
 
 const app = express();
 
@@ -56,6 +57,13 @@ if (config.env === "production") {
 
 // Express Monitor
 app.use(status());
+app.use(
+  bodyParser.json({
+    verify: function (req, res, buf) {
+      req.rawBody = buf;
+    },
+  })
+);
 
 // v1 api routes
 app.use("/api/v1", routes);

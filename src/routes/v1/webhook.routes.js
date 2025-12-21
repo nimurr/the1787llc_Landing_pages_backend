@@ -5,6 +5,7 @@ const { Transition } = require("../../models");
 const router = express.Router();
 const stripe = require("stripe")(config.stripe.secretKey);
 
+// Create checkout session
 router.post("/", auth("user"), async (req, res) => {
     try {
         const { productName, price, type } = req.body;
@@ -19,54 +20,76 @@ router.post("/", auth("user"), async (req, res) => {
             status: "pending",
             type: type,
             startDate: new Date(),
-            expires: type === "month" ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            expires: type === "month"
+                ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         });
 
         const session = await stripe.checkout.sessions.create({
             mode: "subscription",
+            metadata: {
+                id: transition._id.toString(),
+                userId: req.user._id.toString()
+            },
             payment_method_types: ["card"],
             success_url: "http://localhost:3000/success",
-            cancel_url: "http://localhost:3000/cancel", 
+            cancel_url: "http://localhost:3000/cancel",
             line_items: [
                 {
                     price_data: {
                         currency: "usd",
-                        product_data: {
-                            name: productName,
-                        },
+                        product_data: { name: productName },
                         unit_amount: price * 100,
-                        recurring: {
-                            interval: type,
-                        },
+                        recurring: { interval: type },
                     },
                     quantity: 1,
-                    metadata: {
-                        id: transition._id,
-                        userId: req.user._id
-                    },
+
                 },
             ],
         });
 
-        res.status(200).json({
+        return res.status(200).json({
             sessionId: session.id,
             status: session.status,
             message: "Success",
             url: session.url
         });
     } catch (error) {
-
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 });
 
-router.post('/webhook', (req, res) => {
-    console.log(req.body);
+// Stripe webhook
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const whsec = config.stripe.webhookSecret;
+
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.rawBody, sig, whsec);
+        console.log('Webhook event:', event);
+
+    } catch (err) {
+        console.error('Error verifying webhook signature:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
     
-    res.json({ received: true });
+
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        const metadata = session.metadata;
+
+        const transition = await Transition.findById(metadata.id);
+        if (transition) {
+            transition.status = "active";
+            await transition.save();
+        }
+
+        return res.status(200).send('Success');
+    } else {
+        return res.status(400).send('Unhandled event type');
+    }
 });
-
-
-
 
 module.exports = router;

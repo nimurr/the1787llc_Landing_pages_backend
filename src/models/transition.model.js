@@ -13,7 +13,7 @@ const transitionSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "completed", "cancelled"],
+            enum: ["pending", "active", "cancelled"],
             default: "pending",
             required: true,
         },

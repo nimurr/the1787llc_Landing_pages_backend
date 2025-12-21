@@ -24,6 +24,7 @@ const envVarsSchema = Joi.object()
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     STRIPE_SECRET_KEY: Joi.string().required().description('Stripe secret key'),
+    STRIPE_WEBHOOK_SECRET: Joi.string().required().description('Stripe webhook secret'),
   })
   .unknown();
 
@@ -64,5 +65,6 @@ module.exports = {
   },
   stripe: {
     secretKey: envVars.STRIPE_SECRET_KEY,
+    webhookSecret: envVars.STRIPE_WEBHOOK_SECRET,
   },
 };
